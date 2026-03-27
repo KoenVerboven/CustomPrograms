@@ -1,0 +1,6 @@
+
+23:16:22  [Info]    Performing division...
+23:16:22  [Info]    52876786/82378 = 641,879943674282
+23:16:40  [Info]    Performing division...
+23:16:40  [Info]    52872587/1414 = 37392,21145685997
+23:16:52  [Warning] Input2 is not a valid number. Devision is not performed.

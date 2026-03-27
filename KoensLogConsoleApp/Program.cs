@@ -1,8 +1,8 @@
-﻿using KoensLogConsoleApp.KLogger;
+﻿using ConsoleLoggingApp.KoenLogger;
 using KoensLogConsoleApp.Models;
 
 string input1, input2;
-int number1, number2;
+int number1, number2; //todo laat ook komma getallen toe
 var result = "";    
 
 
@@ -16,20 +16,22 @@ IKoenLog kLog = new KoenLog();
 
 try
 {
+    kLog.DeleteOldLogFiles(10);
+
     kLog.OutputTarget = OutputTarget.File; 
     bool input1IsNumeric = int.TryParse(input1, out number1);
     
     if (!input1IsNumeric)
     {
-        result = "Input1 is not a valid number.";
-        kLog.Log(result, OutputType.Error);
+        result = "Input1 is not a valid number. Devision is not performed.";
+        kLog.Log(result, OutputType.Warning);
     }
 
     bool input2IsNumeric = int.TryParse(input2, out number2);
 
     if (!input2IsNumeric) {
-        result = "Input2 is not a valid number.";
-        kLog.Log(result, OutputType.Error);
+        result = "Input2 is not a valid number. Devision is not performed.";
+        kLog.Log(result, OutputType.Warning);
     }
 
     if (input1IsNumeric && input2IsNumeric)

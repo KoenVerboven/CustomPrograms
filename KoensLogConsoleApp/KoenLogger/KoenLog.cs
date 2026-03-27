@@ -1,4 +1,4 @@
-﻿using KoensLogConsoleApp.KLogger;
+﻿using ConsoleLoggingApp.KoenLogger;
 
 namespace KoensLogConsoleApp.Models
 {
@@ -9,7 +9,6 @@ namespace KoensLogConsoleApp.Models
         private string _pathToLogFile = @"C:\Users\koenv\source\repos\KoensLogConsoleApp\KoensLogConsoleApp\logFiles\";//KoensLogConsoleApp aanpassen
         private string _fileNamePrefix = "KoensLog_";
         private string _logFileName = "";
-        private int _fileDeleteAfterDays = 0;
         private string outputText = "";
 
         public KoenLog()
@@ -22,8 +21,9 @@ namespace KoensLogConsoleApp.Models
         {
             outputText = outputType switch
             {
-                OutputType.Error => "[ERROR] " + logText,
-                OutputType.Info => "[Info] " + logText,
+                OutputType.Info    => "[Info]    " + logText,
+                OutputType.Warning => "[Warning] " + logText,
+                OutputType.Error   => "[Error]   " + logText,
                 _ => logText,
             };
 
@@ -71,6 +71,19 @@ namespace KoensLogConsoleApp.Models
                 sw.WriteLine(logText);
             }
            
+        }
+
+        public void DeleteOldLogFiles(int daysToKeep)
+        {
+            string[] logFiles = Directory.GetFiles(_pathToLogFile, _fileNamePrefix + "*.txt");
+            foreach (string logFile in logFiles)
+            {
+                DateTime creationTime = File.GetCreationTime(logFile);
+                if ((DateTime.Now - creationTime).TotalDays > daysToKeep)
+                {
+                    File.Delete(logFile);
+                }
+            }
         }
 
         private void LogToEmail(string logText)

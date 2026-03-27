@@ -2,7 +2,8 @@
 internal enum OutputType
 {
     Info,
-    Error
+    Error,
+    Warning
 }
 
 internal enum OutputTarget 
