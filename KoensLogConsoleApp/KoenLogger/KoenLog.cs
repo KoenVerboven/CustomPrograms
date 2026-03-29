@@ -1,25 +1,23 @@
-﻿using ConsoleLoggingApp.KoenLogger;
-using System.Net.Mail;
+﻿using System.Net.Mail;
 
-namespace KoensLogConsoleApp.Models
+namespace ConsoleLoggingApp.KoenLogger
 {
     internal class KoenLog : IKoenLog
     {
-        private string _emailServer = "smtp.contoso.com";
-        private string _emailFrom = "testFrom@test.com";
-        private string _emailTo = "testTo@test.com";
-        private string _emailAddress = "";
-        private string _emailSubject = "KoenLog Message";
-        private string _connectionString = "";
-        private string _pathToLogFile = @"C:\Users\koenv\source\repos\KoensLogConsoleApp\KoensLogConsoleApp\logFiles\";//KoensLogConsoleApp aanpassen
+        const string _emailSubject = "KoenLog Message";
         const string _fileNamePrefix = "KoensLog_";
         const string _fileExtension = ".log";
+        private string _databaseConnectionString = "";
 
         public KoenLog()
         {
         }
 
         public OutputTarget OutputTarget { get; set; }
+        public string? PathToLogFile { get; set; } // todo : verlplicht maken ????
+        public string? Emailserver { get; set; }
+        public string? EmailFrom { get; set; }
+        public string? EmailTo { get; set; }
 
         public void Log(string logText, OutputType outputType)
         {
@@ -62,7 +60,7 @@ namespace KoensLogConsoleApp.Models
         private void LogToFile(string logText)
         {
             var logFileName = _fileNamePrefix + DateTime.Now.ToString("yyyyMMdd") + _fileExtension;
-            var path = Path.Combine(_pathToLogFile, logFileName);
+            var path = Path.Combine(PathToLogFile, logFileName); // todo : check if path is not null
 
             if (!File.Exists(path))
             {
@@ -79,10 +77,10 @@ namespace KoensLogConsoleApp.Models
 
         public void DeleteOldLogFiles(int daysToKeep)
         {
-            var minLengthFileNamePrefix = 4;
-            if ( _fileNamePrefix.Length > minLengthFileNamePrefix)
+            const int minLengthFileNamePrefix = 3;
+            if ( _fileNamePrefix.Length >= minLengthFileNamePrefix)
             {
-                string[] logFiles = Directory.GetFiles(_pathToLogFile, _fileNamePrefix + "*" + _fileExtension);
+                string[] logFiles = Directory.GetFiles(PathToLogFile, _fileNamePrefix + "*" + _fileExtension);
                 foreach (string logFile in logFiles)
                 {
                     DateTime creationTime = File.GetCreationTime(logFile);
@@ -99,13 +97,13 @@ namespace KoensLogConsoleApp.Models
 
         private void LogToEmail(string logText)//todo : untested, should be tested with a email server
         {
-            MailMessage message = new (_emailFrom, _emailTo)
+            MailMessage message = new (EmailFrom, EmailTo)//todo : send a day overview of the log messages instead of sending an email for each log message
             {
                 Subject = _emailSubject,
                 Body = logText
             };
 
-            SmtpClient client = new (_emailServer)
+            SmtpClient client = new (Emailserver)
             {
                 // Credentials are necessary if the server requires the client
                 // to authenticate before it will send email on the client's behalf.
@@ -118,12 +116,11 @@ namespace KoensLogConsoleApp.Models
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception caught in LogToEmail: {0}",
-                    ex.ToString());
+                Console.WriteLine("Exception caught in LogToEmail: {0}", ex.ToString());
             }
         }
         
-        private void LogToDatabase(string logText)
+        private void LogToDatabase(string logText)//todo : custome may choose a specitic database (sql, mysql, oracle, etc) and should provide a connection string
         {
             throw new NotImplementedException();
         }

@@ -1,5 +1,4 @@
 ﻿using ConsoleLoggingApp.KoenLogger;
-using KoensLogConsoleApp.Models;
 
 string input1, input2;
 int number1, number2; //todo laat ook komma getallen toe
@@ -12,25 +11,30 @@ input1 = Console.ReadLine();
 Console.Write("Number2:");
 input2 = Console.ReadLine();
 
-IKoenLog kLog = new KoenLog();
+IKoenLog kLog = new KoenLog()
+{
+    OutputTarget = OutputTarget.File,
+    Emailserver = "smtp.contoso.com",
+    EmailFrom = "testFrom@contoso.com",
+    EmailTo = "testTo@contoso.com",
+    PathToLogFile = @"C:\Users\koenv\source\repos\KoensLogConsoleApp\KoensLogConsoleApp\logFiles\"
+};
 
 try
 {
     kLog.DeleteOldLogFiles(2);
-
-    kLog.OutputTarget = OutputTarget.File; 
     bool input1IsNumeric = int.TryParse(input1, out number1);
     
     if (!input1IsNumeric)
     {
-        result = "Input1 is not a valid number. Devision is not performed.";
+        result = $"Input1 = '{input1}' is not a valid number. Devision is not performed.";
         kLog.Log(result, OutputType.Warning);
     }
 
     bool input2IsNumeric = int.TryParse(input2, out number2);
 
     if (!input2IsNumeric) {
-        result = "Input2 is not a valid number. Devision is not performed.";
+        result = $"Input2 = '{input2}' is not a valid number. Devision is not performed.";
         kLog.Log(result, OutputType.Warning);
     }
 
