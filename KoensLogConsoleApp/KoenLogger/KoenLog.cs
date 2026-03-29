@@ -12,9 +12,8 @@ namespace KoensLogConsoleApp.Models
         private string _emailSubject = "KoenLog Message";
         private string _connectionString = "";
         private string _pathToLogFile = @"C:\Users\koenv\source\repos\KoensLogConsoleApp\KoensLogConsoleApp\logFiles\";//KoensLogConsoleApp aanpassen
-        private string _fileNamePrefix = "KoensLog_";
-        private string _logFileName = "";
-        private string outputText = "";
+        const string _fileNamePrefix = "KoensLog_";
+        const string _fileExtension = ".log";
 
         public KoenLog()
         {
@@ -24,7 +23,7 @@ namespace KoensLogConsoleApp.Models
 
         public void Log(string logText, OutputType outputType)
         {
-            outputText = outputType switch
+            var outputText = outputType switch
             {
                 OutputType.Info    => "[Info]    " + logText,
                 OutputType.Warning => "[Warning] " + logText,
@@ -62,8 +61,8 @@ namespace KoensLogConsoleApp.Models
 
         private void LogToFile(string logText)
         {
-            _logFileName = _fileNamePrefix + DateTime.Now.ToString("yyyyMMdd") + ".txt";
-            string path = Path.Combine(_pathToLogFile, _logFileName);
+            var logFileName = _fileNamePrefix + DateTime.Now.ToString("yyyyMMdd") + _fileExtension;
+            var path = Path.Combine(_pathToLogFile, logFileName);
 
             if (!File.Exists(path))
             {
@@ -80,14 +79,21 @@ namespace KoensLogConsoleApp.Models
 
         public void DeleteOldLogFiles(int daysToKeep)
         {
-            string[] logFiles = Directory.GetFiles(_pathToLogFile, _fileNamePrefix + "*.txt");
-            foreach (string logFile in logFiles)
+            var minLengthFileNamePrefix = 4;
+            if ( _fileNamePrefix.Length > minLengthFileNamePrefix)
             {
-                DateTime creationTime = File.GetCreationTime(logFile);
-                if ((DateTime.Now - creationTime).TotalDays > daysToKeep)
+                string[] logFiles = Directory.GetFiles(_pathToLogFile, _fileNamePrefix + "*" + _fileExtension);
+                foreach (string logFile in logFiles)
                 {
-                    File.Delete(logFile);
+                    DateTime creationTime = File.GetCreationTime(logFile);
+                    if ((DateTime.Now - creationTime).TotalDays > daysToKeep)
+                    {
+                        File.Delete(logFile);
+                    }
                 }
+            }
+            else {  
+                Console.WriteLine($"Please set a FileNamePrefix with more than {minLengthFileNamePrefix} characters to avoid deleting unintended files.");
             }
         }
 

@@ -16,7 +16,7 @@ IKoenLog kLog = new KoenLog();
 
 try
 {
-    kLog.DeleteOldLogFiles(10);
+    kLog.DeleteOldLogFiles(2);
 
     kLog.OutputTarget = OutputTarget.File; 
     bool input1IsNumeric = int.TryParse(input1, out number1);
