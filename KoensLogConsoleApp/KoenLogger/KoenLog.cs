@@ -1,10 +1,15 @@
 ﻿using ConsoleLoggingApp.KoenLogger;
+using System.Net.Mail;
 
 namespace KoensLogConsoleApp.Models
 {
     internal class KoenLog : IKoenLog
     {
+        private string _emailServer = "smtp.contoso.com";
+        private string _emailFrom = "testFrom@test.com";
+        private string _emailTo = "testTo@test.com";
         private string _emailAddress = "";
+        private string _emailSubject = "KoenLog Message";
         private string _connectionString = "";
         private string _pathToLogFile = @"C:\Users\koenv\source\repos\KoensLogConsoleApp\KoensLogConsoleApp\logFiles\";//KoensLogConsoleApp aanpassen
         private string _fileNamePrefix = "KoensLog_";
@@ -86,9 +91,30 @@ namespace KoensLogConsoleApp.Models
             }
         }
 
-        private void LogToEmail(string logText)
+        private void LogToEmail(string logText)//todo : untested, should be tested with a email server
         {
-            throw new NotImplementedException();
+            MailMessage message = new (_emailFrom, _emailTo)
+            {
+                Subject = _emailSubject,
+                Body = logText
+            };
+
+            SmtpClient client = new (_emailServer)
+            {
+                // Credentials are necessary if the server requires the client
+                // to authenticate before it will send email on the client's behalf.
+                UseDefaultCredentials = true
+            };
+
+            try
+            {
+                client.Send(message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception caught in LogToEmail: {0}",
+                    ex.ToString());
+            }
         }
         
         private void LogToDatabase(string logText)
