@@ -1,15 +1,13 @@
 ﻿using ConsoleLoggingApp.KoenLogger;
 
-string input1, input2;
-int number1, number2; //todo laat ook komma getallen toe
+double number1, number2; 
 var result = "";    
-
 
 Console.WriteLine("Calculate Number1/Number2.");
 Console.Write("Number1:");
-input1 = Console.ReadLine();
+string? input1 = Console.ReadLine();
 Console.Write("Number2:");
-input2 = Console.ReadLine();
+string? input2 = Console.ReadLine();
 
 IKoenLog kLog = new KoenLog()
 {
@@ -18,12 +16,12 @@ IKoenLog kLog = new KoenLog()
     EmailFrom = "testFrom@contoso.com",
     EmailTo = "testTo@contoso.com",
     PathToLogFile = @"C:\Users\koenv\source\repos\KoensLogConsoleApp\KoensLogConsoleApp\logFiles\"
-};
+}; ;
 
 try
 {
     kLog.DeleteOldLogFiles(2);
-    bool input1IsNumeric = int.TryParse(input1, out number1);
+    bool input1IsNumeric = double.TryParse(input1, out number1);
     
     if (!input1IsNumeric)
     {
@@ -31,7 +29,7 @@ try
         kLog.Log(result, OutputType.Warning);
     }
 
-    bool input2IsNumeric = int.TryParse(input2, out number2);
+    bool input2IsNumeric = double.TryParse(input2, out number2);
 
     if (!input2IsNumeric) {
         result = $"Input2 = '{input2}' is not a valid number. Devision is not performed.";
@@ -41,7 +39,7 @@ try
     if (input1IsNumeric && input2IsNumeric)
     {
         kLog.Log("Performing division...", OutputType.Info);
-        result = number1 + "/" + number2 + " = " + (double)number1 / number2;
+        result = input1 + " / " + input2 + " = " + (double)number1 / number2;
         kLog.Log(result, OutputType.Info);
     }
    
@@ -54,5 +52,6 @@ catch (Exception oEx)
 }
 
 Console.WriteLine("Press Enter to stop program.");
+
 Console.ReadLine();
 

@@ -4,20 +4,24 @@ namespace ConsoleLoggingApp.KoenLogger
 {
     internal class KoenLog : IKoenLog
     {
-        const string _emailSubject = "KoenLog Message";
-        const string _fileNamePrefix = "KoensLog_";
-        const string _fileExtension = ".log";
-        private string _databaseConnectionString = "";
+        const string emailSubject = "KoenLog Message";
+        const string fileNamePrefix = "KoensLog_";
+        const string fileExtension = ".log";
+        const string defaultPathToLogFile = @"C:\KoensCustomLoggingFolder\";
+        const int minLengthFileNamePrefix = 3;
 
         public KoenLog()
         {
         }
 
         public OutputTarget OutputTarget { get; set; }
-        public string? PathToLogFile { get; set; } // todo : verlplicht maken ????
-        public string? Emailserver { get; set; }
-        public string? EmailFrom { get; set; }
-        public string? EmailTo { get; set; }
+        public string PathToLogFile { get; set; } 
+        public string Emailserver { get; set; } 
+        public string EmailFrom { get; set; } 
+        public string EmailTo { get; set; }
+        public string DatabaseConnnectionString { get; set; }
+
+
 
         public void Log(string logText, OutputType outputType)
         {
@@ -59,8 +63,11 @@ namespace ConsoleLoggingApp.KoenLogger
 
         private void LogToFile(string logText)
         {
-            var logFileName = _fileNamePrefix + DateTime.Now.ToString("yyyyMMdd") + _fileExtension;
-            var path = Path.Combine(PathToLogFile, logFileName); // todo : check if path is not null
+            var logFileName = fileNamePrefix + DateTime.Now.ToString("yyyyMMdd") + fileExtension;
+
+            if (string.IsNullOrEmpty(PathToLogFile)) PathToLogFile = defaultPathToLogFile;
+
+            var path = Path.Combine(PathToLogFile, logFileName); 
 
             if (!File.Exists(path))
             {
@@ -77,20 +84,22 @@ namespace ConsoleLoggingApp.KoenLogger
 
         public void DeleteOldLogFiles(int daysToKeep)
         {
-            const int minLengthFileNamePrefix = 3;
-            if ( _fileNamePrefix.Length >= minLengthFileNamePrefix)
+            if ( fileNamePrefix.Length >= minLengthFileNamePrefix)
             {
-                string[] logFiles = Directory.GetFiles(PathToLogFile, _fileNamePrefix + "*" + _fileExtension);
+                string[] logFiles = Directory.GetFiles(PathToLogFile, fileNamePrefix + "*" + fileExtension);
                 foreach (string logFile in logFiles)
                 {
                     DateTime creationTime = File.GetCreationTime(logFile);
+
                     if ((DateTime.Now - creationTime).TotalDays > daysToKeep)
                     {
                         File.Delete(logFile);
                     }
+
                 }
             }
-            else {  
+            else 
+            {  
                 Console.WriteLine($"Please set a FileNamePrefix with more than {minLengthFileNamePrefix} characters to avoid deleting unintended files.");
             }
         }
@@ -99,7 +108,7 @@ namespace ConsoleLoggingApp.KoenLogger
         {
             MailMessage message = new (EmailFrom, EmailTo)//todo : send a day overview of the log messages instead of sending an email for each log message
             {
-                Subject = _emailSubject,
+                Subject = emailSubject,
                 Body = logText
             };
 
