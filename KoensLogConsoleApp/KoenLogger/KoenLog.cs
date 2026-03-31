@@ -1,4 +1,6 @@
-﻿using System.Net.Mail;
+﻿using Microsoft.Data.SqlClient;
+using System.Data;
+using System.Net.Mail;
 
 namespace ConsoleLoggingApp.KoenLogger
 {
@@ -14,6 +16,7 @@ namespace ConsoleLoggingApp.KoenLogger
         {
         }
 
+        public required string ProgramNameWhoIsSendingToLog { get; set; }
         public OutputTarget OutputTarget { get; set; }
         public string PathToLogFile { get; set; } 
         public string Emailserver { get; set; } 
@@ -33,7 +36,7 @@ namespace ConsoleLoggingApp.KoenLogger
                 _ => logText,
             };
 
-            logText = DateTime.Now.ToString("HH:mm:ss") + "  "  + outputText.Trim();
+            logText = DateTime.Now.ToString("HH:mm:ss") + "  "  + ProgramNameWhoIsSendingToLog  + " " + outputText.Trim();
             
             switch (OutputTarget)
             {
@@ -47,7 +50,7 @@ namespace ConsoleLoggingApp.KoenLogger
                     LogToEmail(logText);
                     break;
                 case OutputTarget.Database:
-                    LogToDatabase(logText);
+                    LogToDatabase(logText, outputType);
                     break;
                 default:
                     LogToFile(logText);
@@ -129,9 +132,23 @@ namespace ConsoleLoggingApp.KoenLogger
             }
         }
         
-        private void LogToDatabase(string logText)//todo : custome may choose a specitic database (sql, mysql, oracle, etc) and should provide a connection string
+        private void LogToDatabase(string logText, OutputType outputType)//todo : custome may choose a specitic database (sql, mysql, oracle, etc) and should provide a connection string
         {
-            throw new NotImplementedException();
+            string query = "INSERT INTO Log ( CreateDate, ProgramNameWhoIsSendingToLog, LogType, LogText) " +
+                           "VALUES (@CreateDate, ProgramNameWhoIsSendingToLog,@LogType, @LogText ) ";
+
+            using (SqlConnection cn = new SqlConnection(DatabaseConnnectionString))
+            using (SqlCommand cmd = new SqlCommand(query, cn))
+            {
+                cmd.Parameters.Add("@CreateDate", SqlDbType.DateTime).Value = DateTime.Now;
+                cmd.Parameters.Add("@ProgramNameWhoIsSendingToLog", SqlDbType.VarChar, 50).Value = ProgramNameWhoIsSendingToLog;
+                cmd.Parameters.Add("@LogType", SqlDbType.VarChar, 50).Value = outputType.ToString();
+                cmd.Parameters.Add("@LogText", SqlDbType.VarChar, 50).Value = logText;
+             
+                cn.Open();
+                cmd.ExecuteNonQuery();
+                cn.Close();
+            }
         }
 
     }

@@ -11,6 +11,7 @@ string? input2 = Console.ReadLine();
 
 IKoenLog kLog = new KoenLog()
 {
+    ProgramNameWhoIsSendingToLog = "KoensLogConsoleApp",
     OutputTarget = OutputTarget.File,
     Emailserver = "smtp.contoso.com",
     EmailFrom = "testFrom@contoso.com",
