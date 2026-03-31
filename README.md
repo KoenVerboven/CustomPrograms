@@ -2,6 +2,7 @@ Custom program for logging to screen, file, ....
 
 output file example : 
 
-<img width="733" height="162" alt="image" src="https://github.com/user-attachments/assets/691d1fe9-dfb9-4504-87ec-dbb4fd336c09" />
+<img width="911" height="121" alt="image" src="https://github.com/user-attachments/assets/a4b28aa2-7f3c-4887-91d0-adc0c7afca1b" />
+
 
 
