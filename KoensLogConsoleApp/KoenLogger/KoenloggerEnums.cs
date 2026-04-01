@@ -1,18 +1,21 @@
 ﻿
-internal enum OutputType
+internal enum LogLevel
 {
-    Info,
-    Error,
-    Warning
+    Trace = 0,
+    Debug = 1, 
+    Information = 2,
+    Warning = 3,
+    Error = 4,
+    Critical = 5
 }
 
 internal enum OutputTarget 
 {
     Screen ,
-    File ,
+    TextFile ,
     Email ,
     Database ,
-    Excel,
+    ExcelFile,
     EventLog ,
     Azure ,
     Custom

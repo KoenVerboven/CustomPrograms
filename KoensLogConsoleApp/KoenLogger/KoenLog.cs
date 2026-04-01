@@ -18,42 +18,48 @@ namespace ConsoleLoggingApp.KoenLogger
 
         public required string ProgramNameWhoIsSendingToLog { get; set; }
         public OutputTarget OutputTarget { get; set; }
-        public string PathToLogFile { get; set; } 
-        public string Emailserver { get; set; } 
-        public string EmailFrom { get; set; } 
+        public string PathToLogFile { get; set; }
+        public string Emailserver { get; set; }
+        public string EmailFrom { get; set; }
         public string EmailTo { get; set; }
         public string DatabaseConnnectionString { get; set; }
 
 
 
-        public void Log(string logText, OutputType outputType)
+        public void Log(string logText, LogLevel logLevel)
         {
-            var outputText = outputType switch
+            var outputText = logLevel switch
             {
-                OutputType.Info    => "[Info]    " + logText,
-                OutputType.Warning => "[Warning] " + logText,
-                OutputType.Error   => "[Error]   " + logText,
+                LogLevel.Trace =>       "[Trace]       " + logText,
+                LogLevel.Debug =>       "[Debug]       " + logText,
+                LogLevel.Information => "[Information] " + logText,
+                LogLevel.Warning =>     "[Warning]     " + logText,
+                LogLevel.Error =>       "[Error]       " + logText,
+                LogLevel.Critical =>    "[Critical]    " + logText,
                 _ => logText,
             };
 
-            logText = DateTime.Now.ToString("HH:mm:ss") + "  "  + ProgramNameWhoIsSendingToLog  + " " + outputText.Trim();
-            
+            logText = DateTime.Now.ToString("HH:mm:ss") + "  " + ProgramNameWhoIsSendingToLog + " " + outputText.Trim();
+
             switch (OutputTarget)
             {
                 case OutputTarget.Screen:
                     LogToScreen(logText);
                     break;
-                case OutputTarget.File:
-                    LogToFile(logText);
+                case OutputTarget.TextFile:
+                    LogToTextFile(logText);
+                    break;
+                case OutputTarget.ExcelFile:
+                    LogToExcelFile(logText);
                     break;
                 case OutputTarget.Email:
                     LogToEmail(logText);
                     break;
                 case OutputTarget.Database:
-                    LogToDatabase(logText, outputType);
+                    LogToDatabase(logText, logLevel);
                     break;
                 default:
-                    LogToFile(logText);
+                    LogToTextFile(logText);
                     break;
             }
 
@@ -64,13 +70,13 @@ namespace ConsoleLoggingApp.KoenLogger
             Console.WriteLine($"[koenLog] {logText}");
         }
 
-        private void LogToFile(string logText)
+        private void LogToTextFile(string logText)
         {
             var logFileName = fileNamePrefix + DateTime.Now.ToString("yyyyMMdd") + fileExtension;
 
             if (string.IsNullOrEmpty(PathToLogFile)) PathToLogFile = defaultPathToLogFile;
 
-            var path = Path.Combine(PathToLogFile, logFileName); 
+            var path = Path.Combine(PathToLogFile, logFileName);
 
             if (!File.Exists(path))
             {
@@ -82,12 +88,12 @@ namespace ConsoleLoggingApp.KoenLogger
                 using StreamWriter sw = File.AppendText(path);
                 sw.WriteLine(logText);
             }
-           
+
         }
 
         public void DeleteOldLogFiles(int daysToKeep)
         {
-            if ( fileNamePrefix.Length >= minLengthFileNamePrefix)
+            if (fileNamePrefix.Length >= minLengthFileNamePrefix)
             {
                 string[] logFiles = Directory.GetFiles(PathToLogFile, fileNamePrefix + "*" + fileExtension);
                 foreach (string logFile in logFiles)
@@ -101,24 +107,22 @@ namespace ConsoleLoggingApp.KoenLogger
 
                 }
             }
-            else 
-            {  
+            else
+            {
                 Console.WriteLine($"Please set a FileNamePrefix with more than {minLengthFileNamePrefix} characters to avoid deleting unintended files.");
             }
         }
 
         private void LogToEmail(string logText)//todo : untested, should be tested with a email server
         {
-            MailMessage message = new (EmailFrom, EmailTo)//todo : send a day overview of the log messages instead of sending an email for each log message
+            MailMessage message = new(EmailFrom, EmailTo)//todo : send a day overview of the log messages instead of sending an email for each log message
             {
                 Subject = emailSubject,
                 Body = logText
             };
 
-            SmtpClient client = new (Emailserver)
+            SmtpClient client = new(Emailserver)
             {
-                // Credentials are necessary if the server requires the client
-                // to authenticate before it will send email on the client's behalf.
                 UseDefaultCredentials = true
             };
 
@@ -131,25 +135,29 @@ namespace ConsoleLoggingApp.KoenLogger
                 Console.WriteLine("Exception caught in LogToEmail: {0}", ex.ToString());
             }
         }
-        
-        private void LogToDatabase(string logText, OutputType outputType)//todo : custome may choose a specitic database (sql, mysql, oracle, etc) and should provide a connection string
+
+        private void LogToDatabase(string logText, LogLevel logLevel)
         {
-            string query = "INSERT INTO Log ( CreateDate, ProgramNameWhoIsSendingToLog, LogType, LogText) " +
-                           "VALUES (@CreateDate, ProgramNameWhoIsSendingToLog,@LogType, @LogText ) ";
+            string query = "INSERT INTO Log ( CreateDate, ProgramNameWhoIsSendingToLog, LogLevel, LogText) " +
+                           "VALUES (@CreateDate, ProgramNameWhoIsSendingToLog,@LogLevel, @LogText ) ";
 
             using (SqlConnection cn = new SqlConnection(DatabaseConnnectionString))
             using (SqlCommand cmd = new SqlCommand(query, cn))
             {
                 cmd.Parameters.Add("@CreateDate", SqlDbType.DateTime).Value = DateTime.Now;
                 cmd.Parameters.Add("@ProgramNameWhoIsSendingToLog", SqlDbType.VarChar, 50).Value = ProgramNameWhoIsSendingToLog;
-                cmd.Parameters.Add("@LogType", SqlDbType.VarChar, 50).Value = outputType.ToString();
+                cmd.Parameters.Add("@LogLevel", SqlDbType.VarChar, 50).Value = logLevel.ToString();
                 cmd.Parameters.Add("@LogText", SqlDbType.VarChar, 50).Value = logText;
-             
+
                 cn.Open();
                 cmd.ExecuteNonQuery();
                 cn.Close();
             }
         }
 
+        private void LogToExcelFile(string logText)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

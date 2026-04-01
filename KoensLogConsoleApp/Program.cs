@@ -12,7 +12,7 @@ string? input2 = Console.ReadLine();
 IKoenLog kLog = new KoenLog()
 {
     ProgramNameWhoIsSendingToLog = "KoensLogConsoleApp",
-    OutputTarget = OutputTarget.File,
+    OutputTarget = OutputTarget.TextFile,
     Emailserver = "smtp.contoso.com",
     EmailFrom = "testFrom@contoso.com",
     EmailTo = "testTo@contoso.com",
@@ -27,21 +27,21 @@ try
     if (!input1IsNumeric)
     {
         result = $"Input1 = '{input1}' is not a valid number. Devision is not performed.";
-        kLog.Log(result, OutputType.Warning);
+        kLog.Log(result, LogLevel.Warning);
     }
 
     bool input2IsNumeric = double.TryParse(input2, out number2);
 
     if (!input2IsNumeric) {
         result = $"Input2 = '{input2}' is not a valid number. Devision is not performed.";
-        kLog.Log(result, OutputType.Warning);
+        kLog.Log(result, LogLevel.Warning);
     }
 
     if (input1IsNumeric && input2IsNumeric)
     {
-        kLog.Log("Performing division...", OutputType.Info);
+        kLog.Log("Performing division...", LogLevel.Information);
         result = input1 + " / " + input2 + " = " + (double)number1 / number2;
-        kLog.Log(result, OutputType.Info);
+        kLog.Log(result, LogLevel.Information);
     }
    
     Console.WriteLine(result);
@@ -49,7 +49,7 @@ try
 }
 catch (Exception oEx)
 {
-    kLog.Log(oEx.Message,OutputType.Error);
+    kLog.Log(oEx.Message,LogLevel.Error);
 }
 
 Console.WriteLine("Press Enter to stop program.");
