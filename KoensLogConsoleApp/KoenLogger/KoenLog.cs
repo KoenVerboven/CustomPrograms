@@ -77,15 +77,15 @@ namespace ConsoleLoggingApp.KoenLogger
             if (string.IsNullOrEmpty(PathToLogFile)) PathToLogFile = defaultPathToLogFile;
 
             var path = Path.Combine(PathToLogFile, logFileName);
-
-            if (!File.Exists(path))
+     
+            if (File.Exists(path))
             {
-                using StreamWriter sw = File.CreateText(path);
+                using StreamWriter sw = File.AppendText(path);
                 sw.WriteLine(logText);
             }
             else
             {
-                using StreamWriter sw = File.AppendText(path);
+                using StreamWriter sw = File.CreateText(path);
                 sw.WriteLine(logText);
             }
 
